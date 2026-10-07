@@ -1,25 +1,27 @@
 {
   "name": "Trupe Training",
-  "short_name": "Trupe Training",
-  "start_url": "./index.html",
+  "short_name": "Trupe",
+  "description": "Seu treino gamificado com XP, níveis e conquistas.",
+  "lang": "pt-BR",
+  "start_url": "/trupe-training/",
+  "scope": "/trupe-training/",
   "display": "standalone",
-  "background_color": "#0d0f17",
-  "theme_color": "#0d0f17",
   "orientation": "portrait",
-  "scope": "./",
+  "background_color": "#070b18",
+  "theme_color": "#070b18",
   "icons": [
     {
-      "src": "icons/icon-192.png",
+      "src": "/trupe-training/icons/icon-192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "icons/icon-512.png",
+      "src": "/trupe-training/icons/icon-512.png",
       "sizes": "512x512",
       "type": "image/png"
     },
     {
-      "src": "icons/icon-maskable-512.png",
+      "src": "/trupe-training/icons/icon-maskable-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"

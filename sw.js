@@ -1,28 +1,57 @@
-// Service worker: deixa o app funcionar offline.
-// Ao publicar uma atualização, aumente o número da versão abaixo.
-const VERSAO = "trupe-v1";
-const ARQUIVOS = ["./","index.html","manifest.webmanifest","icons/icon-192.png","icons/icon-512.png","icons/icon-maskable-512.png","icons/apple-touch-icon.png"];
+const CACHE_NAME = "trupe-training-v1";
 
-self.addEventListener("install", e => {
-  e.waitUntil(caches.open(VERSAO).then(c => c.addAll(ARQUIVOS)).then(() => self.skipWaiting()));
+const ARQUIVOS = [
+  "/trupe-training/",
+  "/trupe-training/index.html",
+  "/trupe-training/manifest.webmanifest",
+  "/trupe-training/icons/icon-192.png",
+  "/trupe-training/icons/icon-512.png",
+  "/trupe-training/icons/icon-maskable-512.png",
+  "/trupe-training/icons/apple-touch-icon.png"
+];
+
+// Instala o Service Worker e salva os arquivos no cache
+self.addEventListener("install", (event) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.addAll(ARQUIVOS);
+    })
+  );
+
+  self.skipWaiting();
 });
-self.addEventListener("activate", e => {
-  e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== VERSAO).map(k => caches.delete(k)))).then(() => self.clients.claim()));
+
+// Ativa o novo Service Worker
+self.addEventListener("activate", (event) => {
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames
+          .filter((cacheName) => cacheName !== CACHE_NAME)
+          .map((cacheName) => caches.delete(cacheName))
+      );
+    })
+  );
+
+  self.clients.claim();
 });
-self.addEventListener("fetch", e => {
-  if (e.request.method !== "GET") return;
-  const url = new URL(e.request.url);
-  const mesmaOrigem = url.origin === location.origin;
-  const fonte = /fonts\.(googleapis|gstatic)\.com$/.test(url.hostname);
-  if (!mesmaOrigem && !fonte) return;
-  // Arquivos do app: tenta a rede primeiro (pega updates) e cai pro cache se estiver offline. Fontes: cache primeiro.
-  if (fonte) {
-    e.respondWith(caches.match(e.request).then(r => r || fetch(e.request).then(res => {
-      const cp = res.clone(); caches.open(VERSAO).then(c => c.put(e.request, cp)); return res;
-    })));
-  } else {
-    e.respondWith(fetch(e.request).then(res => {
-      const cp = res.clone(); caches.open(VERSAO).then(c => c.put(e.request, cp)); return res;
-    }).catch(() => caches.match(e.request).then(r => r || caches.match("index.html"))));
-  }
+
+// Tenta buscar da internet.
+// Se estiver offline, usa o cache.
+self.addEventListener("fetch", (event) => {
+  event.respondWith(
+    fetch(event.request)
+      .then((response) => {
+        const responseClone = response.clone();
+
+        caches.open(CACHE_NAME).then((cache) => {
+          cache.put(event.request, responseClone);
+        });
+
+        return response;
+      })
+      .catch(() => {
+        return caches.match(event.request);
+      })
+  );
 });
