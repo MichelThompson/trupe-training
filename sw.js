@@ -1,4 +1,4 @@
-const CACHE_NAME = "trupe-training-v1";
+const VERSAO = "trupe-v2";
 
 const ARQUIVOS = [
   "/trupe-training/",
@@ -10,48 +10,40 @@ const ARQUIVOS = [
   "/trupe-training/icons/apple-touch-icon.png"
 ];
 
-// Instala o Service Worker e salva os arquivos no cache
-self.addEventListener("install", (event) => {
+self.addEventListener("install", event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ARQUIVOS);
-    })
+    caches.open(VERSAO)
+      .then(cache => cache.addAll(ARQUIVOS))
+      .then(() => self.skipWaiting())
   );
-
-  self.skipWaiting();
 });
 
-// Ativa o novo Service Worker
-self.addEventListener("activate", (event) => {
+self.addEventListener("activate", event => {
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames
-          .filter((cacheName) => cacheName !== CACHE_NAME)
-          .map((cacheName) => caches.delete(cacheName))
-      );
-    })
+    caches.keys().then(keys =>
+      Promise.all(
+        keys
+          .filter(key => key !== VERSAO)
+          .map(key => caches.delete(key))
+      )
+    ).then(() => self.clients.claim())
   );
-
-  self.clients.claim();
 });
 
-// Tenta buscar da internet.
-// Se estiver offline, usa o cache.
-self.addEventListener("fetch", (event) => {
+self.addEventListener("fetch", event => {
+  if (event.request.method !== "GET") return;
+
   event.respondWith(
     fetch(event.request)
-      .then((response) => {
-        const responseClone = response.clone();
+      .then(response => {
+        const copia = response.clone();
 
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, responseClone);
+        caches.open(VERSAO).then(cache => {
+          cache.put(event.request, copia);
         });
 
         return response;
       })
-      .catch(() => {
-        return caches.match(event.request);
-      })
+      .catch(() => caches.match(event.request))
   );
 });

@@ -6,7 +6,7 @@
 <title>Trupe Training</title>
  <link rel="icon" type="image/png" href="icons/icon-192.png">
 <meta name="theme-color" content="#070b18">
-<link rel="manifest" href="manifest.webmanifest">
+<link rel="manifest" href="/trupe-training/manifest.webmanifest">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -1318,6 +1318,6 @@ if(!NOME) pedeNome(); else abreEscolha();
 // Abertura animada: roda toda vez que o app abre (toque para pular)
 (function(){const s=document.getElementById("splash");if(!s)return;let ok=false;function fim(){if(ok)return;ok=true;s.classList.add("sai");setTimeout(()=>s.remove(),700)}s.addEventListener("click",fim);setTimeout(fim,matchMedia("(prefers-reduced-motion:reduce)").matches?900:3300)})();
 </script>
-<script>if("serviceWorker"in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));</script>
+<script>if("serviceWorker"in navigator)addEventListener("load",()=>navigator.serviceWorker.register("/trupe-training/sw.js").catch(()=>{}));</script>
 </body>
 </html>
